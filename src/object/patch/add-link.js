@@ -3,6 +3,7 @@
 
 const dagPB = require('ipld-dag-pb')
 const DAGNode = dagPB.DAGNode
+const DAGLink = dagPB.DAGLink
 const series = require('async/series')
 const { getDescribe, getIt, expect } = require('../../utils/mocha')
 const {
@@ -162,6 +163,35 @@ module.exports = (createCommon, options) => {
       const nodeFromObjectPatchCid = await ipfs.object.patch.addLink(parentCid, newParent.Links[0])
 
       expect(newParentCid).to.eql(nodeFromObjectPatchCid)
+    })
+
+    it('returns error for request without arguments', () => {
+      return ipfs.object.patch.addLink(null, null, null)
+        .then(
+          () => expect.fail('should have returned an error for invalid argument'),
+          (err) => expect(err).to.be.an.instanceof(Error)
+        )
+    })
+
+    it('returns error for request with only one invalid argument', () => {
+      return ipfs.object.patch.addLink('invalid', null, null)
+        .then(
+          () => expect.fail('should have returned an error for invalid argument'),
+          (err) => expect(err).to.be.an.instanceof(Error)
+        )
+    })
+
+    it('returns error for request without name', () => {
+      const root = 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
+      const name = ''
+      const ref = 'QmTz3oc4gdpRMKP2sdGUPZTAGRngqjsi99BPoztyP53JMM'
+      const link = new DAGLink(name, 2, ref)
+
+      return ipfs.object.patch.addLink(root, link, { enc: 'base58' })
+        .then(
+          () => expect.fail('should have returned an error for invalid argument'),
+          (err) => expect(err).to.be.an.instanceof(Error)
+        )
     })
   })
 }

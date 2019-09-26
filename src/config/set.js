@@ -72,6 +72,22 @@ module.exports = (createCommon, options) => {
       })
     })
 
+    it('should set a boolean', async () => {
+      const value = true
+      const key = 'Datastore.Path'
+
+      await ipfs.config.set(key, value)
+      expect(await ipfs.config.get(key)).to.equal(value)
+    })
+
+    it('should set the other boolean', async () => {
+      const value = false
+      const key = 'Datastore.Path'
+
+      await ipfs.config.set(key, value)
+      expect(await ipfs.config.get(key)).to.equal(value)
+    })
+
     it('should set a JSON object', (done) => {
       const key = 'API.HTTPHeaders.Access-Control-Allow-Origin'
       const val = ['http://example.io']
@@ -97,6 +113,14 @@ module.exports = (createCommon, options) => {
         expect(err).to.exist()
         done()
       })
+    })
+
+    it('should fail with invalid JSON argument', () => {
+      return ipfs.config.set('Datastore.Path', 'kitten', { json: true })
+        .then(
+          () => expect.fail('should have thrown when value passed as JSON was invalid JSON'),
+          (err) => expect(err).to.be.an.instanceof(Error)
+        )
     })
   })
 }
